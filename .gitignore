@@ -72,7 +72,7 @@ web_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variable files
+# dotenv environment variable files (EXTREMAMENTE IMPORTANTE PARA SEGURANÇA)
 .env
 .env.development.local
 .env.test.local
@@ -134,3 +134,24 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# ----------------------------------------------------------------------
+# ADIÇÕES PERSONALIZADAS DE SEGURANÇA E LIMPEZA
+# ----------------------------------------------------------------------
+
+# Arquivos gerados por Sistemas Operacionais (Mac/Windows)
+.DS_Store
+Thumbs.db
+
+# Configurações locais de editores de código (IDE)
+.vscode/
+.idea/
+
+# Chaves privadas e certificados de segurança locais
+*.pem
+*.key
+*.crt
+
+# Bancos de dados locais (usados para testes, não devem ir para produção)
+*.sqlite
+*.sqlite3
