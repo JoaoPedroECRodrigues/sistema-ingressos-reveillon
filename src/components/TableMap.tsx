@@ -103,7 +103,7 @@ export default function TableMap() {
                 Disponibilidade: <span className={isSoldOut ? 'text-red-400' : 'text-emerald-400 font-bold'}>{sector.available_spots}</span> / {sector.total_spots}
               </p>
               <p className="text-lg font-bold text-white mt-4">
-                R$ {sector.price.toFixed(2)}
+                R$ {Number(sector.price).toFixed(2)}
               </p>
             </div>
           );

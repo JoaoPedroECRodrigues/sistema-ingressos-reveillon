@@ -17,9 +17,9 @@ export async function POST(request: Request) {
       await client.query('BEGIN');
 
       // Consulta com bloqueio de registro (Row-level lock - FOR UPDATE)
-      // para prevenção de concorrência e race conditions
+      // Busca a capacidade total e a ocupação atual na tabela sectors
       const sectorResult = await client.query(
-        'SELECT available_spots FROM sectors WHERE id = $1 FOR UPDATE',
+        'SELECT total_capacity, current_occupancy FROM sectors WHERE id = $1 FOR UPDATE',
         [sectorId]
       );
 
@@ -27,23 +27,24 @@ export async function POST(request: Request) {
         throw new Error('Setor não localizado no banco de dados.');
       }
 
-      const available = sectorResult.rows[0].available_spots;
+      const { total_capacity, current_occupancy } = sectorResult.rows[0];
+      const available = total_capacity - current_occupancy;
 
       // Validação de disponibilidade em tempo real
       if (available < quantity) {
         throw new Error('Vagas insuficientes para a quantidade solicitada.');
       }
 
-      // Atualização do inventário de vagas do setor
+      // Atualização do inventário: aumenta a ocupação atual do setor
       await client.query(
-        'UPDATE sectors SET available_spots = available_spots - $1 WHERE id = $2',
+        'UPDATE sectors SET current_occupancy = current_occupancy + $1 WHERE id = $2',
         [quantity, sectorId]
       );
 
       // Confirmação e persistência da transação
       await client.query('COMMIT');
 
-      return NextResponse.json({ message: 'Reserva temporária efetivada com sucesso.' }, { status: 200 });
+      return NextResponse.json({ message: 'Reserva temporária confirmada com sucesso.' }, { status: 200 });
     } catch (err: any) {
       // Reversão de estado em caso de exceção para manter integridade dos dados
       await client.query('ROLLBACK');
